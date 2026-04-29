@@ -1,5 +1,9 @@
 import sys
+import os
 import asyncio
+
+print("PYTHONPATH:", os.getenv("PYTHONPATH"))
+print("SYSTEM PATH:", sys.path)
 
 if sys.platform.startswith("win"):
     asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
@@ -33,6 +37,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+if not os.path.exists("temp"):
+    os.makedirs("temp")
 
 app.mount("/temp", StaticFiles(directory="temp"), name="temp")
 
