@@ -15,7 +15,11 @@ async def get_browser():
         _playwrights[loop_id] = await async_playwright().start()
         _browsers[loop_id] = await _playwrights[loop_id].chromium.launch(
             headless=True,
-            args=["--no-sandbox", "--disable-setuid-sandbox"]
+            args=[
+                "--no-sandbox", 
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage"
+            ]
         )
     return _browsers[loop_id]
 
