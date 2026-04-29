@@ -4,6 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 
 export default function Home() {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
   const [links, setLinks] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [workingLinks, setWorkingLinks] = useState<string[]>([]);
@@ -28,7 +30,7 @@ export default function Home() {
     setWorkingLinks([]);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/check-links", {
+      const res = await fetch(`${API_URL}/check-links`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -180,10 +182,10 @@ export default function Home() {
                 {item.screenshot && (
                   <div 
                     className="relative w-full h-40 mt-auto cursor-pointer hover:opacity-80 rounded-lg border overflow-hidden"
-                    onClick={() => setSelectedImage(`http://127.0.0.1:8000/${item.screenshot}`)}
+                    onClick={() => setSelectedImage(`${API_URL}/${item.screenshot}`)}
                   >
                     <Image
-                      src={`http://127.0.0.1:8000/${item.screenshot}`}
+                      src={`${API_URL}/${item.screenshot}`}
                       alt="Website screenshot"
                       fill
                       unoptimized
