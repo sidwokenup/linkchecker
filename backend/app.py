@@ -11,12 +11,15 @@ if sys.platform.startswith("win"):
 # Fix for Windows asyncio subprocess bug with Playwright and Uvicorn
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from checker.engine import check_link, check_link_with_retry
+from checker.safe_browsing import check_safe_browsing
 from utils.parser import parse_links
 from utils.concurrency import run_with_concurrency
+import requests
+import datetime
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -93,3 +96,68 @@ async def check_multiple_links(data: dict):
         "error_links": error_links,
         "total": len(results)
     }
+
+@app.websocket("/ws/monitor")
+async def websocket_monitor(websocket: WebSocket):
+    await websocket.accept()
+    monitor_tasks = []
+    try:
+        data = await websocket.receive_json()
+        raw_links = data.get("links")
+        if not raw_links:
+            await websocket.send_json({"error": "No URLs provided"})
+            await websocket.close()
+            return
+            
+        # Parse cleanly
+        urls = parse_links(raw_links)
+        semaphore = asyncio.Semaphore(5) # Max 5 concurrent external requests at any given millisecond
+
+        async def monitor_single_url(url: str):
+            while True:
+                timestamp = datetime.datetime.now().strftime("%I:%M:%S %p")
+                try:
+                    async with semaphore:
+                        # Use the bulletproof Playwright engine for Live Monitoring
+                        result = await check_link(url)
+                        
+                        message = "Safe & Active"
+                        if result["status"] == "flagged":
+                            message = "Flagged as Dangerous!"
+                        elif result["status"] == "error":
+                            message = result.get("error", "Error / Unreachable")
+                            
+                        await websocket.send_json({
+                            "status": result["status"], 
+                            "url": url, 
+                            "timestamp": timestamp,
+                            "message": message
+                        })
+                except Exception as e:
+                    # Ignore internal errors so loop continues
+                    pass
+                
+                # Wait 2 seconds before checking this specific URL again
+                await asyncio.sleep(2)
+
+        # Spawn a concurrent task for each URL
+        for url in urls:
+            task = asyncio.create_task(monitor_single_url(url))
+            monitor_tasks.append(task)
+            
+        # Keep the connection open until client disconnects
+        while True:
+            await websocket.receive_text()
+            
+    except WebSocketDisconnect:
+        print("Client disconnected from monitor")
+    except Exception as e:
+        print(f"Monitor error: {e}")
+    finally:
+        # Cancel all background tasks to prevent memory leaks and zombie loops
+        for task in monitor_tasks:
+            task.cancel()
+        try:
+            await websocket.close()
+        except:
+            pass

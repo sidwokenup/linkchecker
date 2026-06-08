@@ -25,7 +25,7 @@ def check_safe_browsing(url: str):
     }
     
     try:
-        response = requests.post(endpoint, json=payload)
+        response = requests.post(endpoint, json=payload, timeout=5)
         
         if response.status_code == 200:
             data = response.json()

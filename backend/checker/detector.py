@@ -22,7 +22,22 @@ def detect_status(title: str, content: str):
             return "flagged"
             
     # Use word boundaries to prevent matching numbers like 4040 in CSS/scripts
-    if re.search(r'\b404\b', text) or "page not found" in text or "this site can't be reached" in text or "err_connection_refused" in text:
+    if re.search(r'\b404\b', text):
         return "error"
         
+    error_keywords = [
+        "page not found",
+        "this site can't be reached",
+        "err_connection_refused",
+        "our services aren't available right now",
+        "the request is blocked",
+        "403 forbidden",
+        "502 bad gateway",
+        "503 service temporarily unavailable"
+    ]
+    
+    for keyword in error_keywords:
+        if keyword in text:
+            return "error"
+            
     return "working"
