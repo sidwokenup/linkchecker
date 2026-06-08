@@ -236,14 +236,14 @@ export default function Home() {
     <main className="min-h-screen bg-gray-100 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header & Tabs */}
-        <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
             🔗 Link Checker Dashboard
           </h1>
-          <div className="flex bg-white rounded-lg shadow p-1">
+          <div className="flex w-full sm:w-auto bg-white rounded-lg shadow p-1">
             <button
               onClick={() => setActiveTab("batch")}
-              className={`px-4 py-2 rounded-md font-medium transition ${
+              className={`flex-1 sm:flex-none px-4 py-2 rounded-md text-sm sm:text-base font-medium transition ${
                 activeTab === "batch" ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100"
               }`}
             >
@@ -251,7 +251,7 @@ export default function Home() {
             </button>
             <button
               onClick={() => setActiveTab("monitor")}
-              className={`px-4 py-2 rounded-md font-medium transition ${
+              className={`flex-1 sm:flex-none px-4 py-2 rounded-md text-sm sm:text-base font-medium transition ${
                 activeTab === "monitor" ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100"
               }`}
             >
@@ -276,7 +276,7 @@ export default function Home() {
               <button
                 onClick={handleCheck}
                 disabled={loading}
-                className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 active:scale-95 transition transform duration-150 disabled:opacity-50"
+                className="mt-4 w-full sm:w-auto bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 active:scale-95 transition transform duration-150 disabled:opacity-50"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -302,7 +302,7 @@ export default function Home() {
               />
               <button
                 onClick={() => navigator.clipboard.writeText(workingLinks.join("\n"))}
-                className="mt-2 bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700 transition transform duration-150 active:scale-95"
+                className="mt-2 w-full sm:w-auto bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700 transition transform duration-150 active:scale-95"
               >
                 Copy Links
               </button>
@@ -420,18 +420,18 @@ export default function Home() {
                   disabled={isMonitoring}
                 />
                 
-                <div className="flex flex-col justify-end">
+                <div className="flex flex-col sm:flex-row justify-end">
                   {!isMonitoring ? (
                     <button
                       onClick={startMonitoring}
-                      className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 active:scale-95 transition"
+                      className="w-full sm:w-auto bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 active:scale-95 transition"
                     >
                       Start Monitoring
                     </button>
                   ) : (
                     <button
                       onClick={stopMonitoring}
-                      className="bg-red-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-700 active:scale-95 transition"
+                      className="w-full sm:w-auto bg-red-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-700 active:scale-95 transition"
                     >
                       Stop Monitoring
                     </button>
